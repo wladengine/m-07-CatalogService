@@ -1,6 +1,7 @@
 ﻿using CatalogService.Core.Commands;
 using CatalogService.Core.Entities;
 using CatalogService.Core.Handlers.Categories;
+using CatalogService.Core.Handlers.Products;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogService.Controllers
@@ -15,6 +16,7 @@ namespace CatalogService.Controllers
         private readonly ICreateCategoryHandler _createCategoryHandler;
         private readonly IUpdateCategoryHandler _updateCategoryHandler;
         private readonly IDeleteCategoryHandler _deleteCategoryHandler;
+        private readonly IGetProductsByCategoryHandler _getProductsByCategoryHandler;
 
         public CategoriesController(
             ILogger<CategoriesController> logger,
@@ -22,7 +24,8 @@ namespace CatalogService.Controllers
             IGetCategoryHandler getCategoryHandler,
             ICreateCategoryHandler createCategoryHandler,
             IUpdateCategoryHandler updateCategoryHandler,
-            IDeleteCategoryHandler deleteCategoryHandler)
+            IDeleteCategoryHandler deleteCategoryHandler,
+            IGetProductsByCategoryHandler getProductsByCategoryHandler)
         {
             _logger = logger;
             _getCategoriesHandler = getCategoriesHandler;
@@ -30,6 +33,7 @@ namespace CatalogService.Controllers
             _createCategoryHandler = createCategoryHandler;
             _updateCategoryHandler = updateCategoryHandler;
             _deleteCategoryHandler = deleteCategoryHandler;
+            _getProductsByCategoryHandler = getProductsByCategoryHandler;
         }
 
 
@@ -59,6 +63,21 @@ namespace CatalogService.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error while {nameof(GetCategoryByIdAsync)}");
+                throw;
+            }
+        }
+
+        // GET /api/categories/123/products
+        [HttpGet(template: "{id}/products", Name = "Get products by category")]
+        public async Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(int id)
+        {
+            try
+            {
+                return await _getProductsByCategoryHandler.HandleAsync(id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error while {nameof(GetProductsByCategoryIdAsync)}");
                 throw;
             }
         }

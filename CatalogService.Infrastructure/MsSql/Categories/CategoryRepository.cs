@@ -9,7 +9,6 @@ public interface ICategoryRepository
     Task<IEnumerable<CategoryDto>> GetCategoriesAsync();
     Task<CategoryDto> GetCategoryAsync(int categoryId);
     public Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId);
-    
     Task<int> CreateNew(CreateUpdateCategoryCommand command);
     Task<CategoryDto> Update(int categoryId, CreateUpdateCategoryCommand command);
     Task<bool> Delete(int categoryId);
@@ -54,7 +53,6 @@ public class CategoryRepository : ICategoryRepository
             })
             .SingleAsync(p => p.Id == categoryId);
     }
-
 
     public async Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId)
     {

@@ -1,5 +1,6 @@
 using CatalogService.Core.Commands;
 using CatalogService.Core.Entities;
+using CatalogService.Core.Handlers.Categories;
 using CatalogService.Core.Handlers.Products;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace CatalogService.Controllers
         private readonly ICreateProductHandler _createProductHandler;
         private readonly IUpdateProductHandler _updateProductHandler;
         private readonly IDeleteProductHandler _deleteProductHandler;
+        private readonly IGetCategoriesByProductHandler _getCategoriesByProductHandler;
 
         public ProductsController(
             ILogger<ProductsController> logger, 
@@ -22,7 +24,8 @@ namespace CatalogService.Controllers
             IGetProductHandler getProductHandler,
             ICreateProductHandler createProductHandler,
             IUpdateProductHandler updateProductHandler,
-            IDeleteProductHandler deleteProductHandler)
+            IDeleteProductHandler deleteProductHandler,
+            IGetCategoriesByProductHandler getCategoriesByProductHandler)
         {
             _logger = logger;
             _getProductsHandler = getProductsHandler;
@@ -30,6 +33,7 @@ namespace CatalogService.Controllers
             _createProductHandler = createProductHandler;
             _updateProductHandler = updateProductHandler;
             _deleteProductHandler = deleteProductHandler;
+            _getCategoriesByProductHandler = getCategoriesByProductHandler;
         }
 
         // GET /api/products
@@ -42,7 +46,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while GetAllProductsAsync");
+                _logger.LogError(e, $"Error while {nameof(GetAllProductsAsync)}");
                 throw;
             }
         }
@@ -57,7 +61,22 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while GetProductByIdAsync");
+                _logger.LogError(e, $"Error while {nameof(GetProductByIdAsync)}");
+                throw;
+            }
+        }
+        
+        // GET /api/products/123/categories
+        [HttpGet(template: "{id}/categories", Name = "Get product categories")]
+        public async Task<IEnumerable<Category>> GetCategoriesByProductIdAsync(int id)
+        {
+            try
+            {
+                return await _getCategoriesByProductHandler.HandleAsync(id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error while {nameof(GetCategoriesByProductIdAsync)}");
                 throw;
             }
         }
@@ -73,7 +92,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while AddCategory");
+                _logger.LogError(e, $"Error while {nameof(AddProduct)}");
                 throw;
             }
         }
@@ -94,7 +113,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while UpdateCategory");
+                _logger.LogError(e, $"Error while {nameof(UpdateProduct)}");
                 throw;
             }
         }
@@ -110,7 +129,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while UpdateCategory");
+                _logger.LogError(e, $"Error while {nameof(DeleteProduct)}");
                 throw;
             }
         }

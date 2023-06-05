@@ -11,11 +11,15 @@ static void RegisterHandlers(WebApplicationBuilder webApplicationBuilder)
         .AddScoped<ICreateProductHandler, CreateProductHandler>()
         .AddScoped<IUpdateProductHandler, UpdateProductHandler>()
         .AddScoped<IDeleteProductHandler, DeleteProductHandler>()
+        .AddScoped<IGetProductsByCategoryHandler, GetProductsByCategoryHandler>()
+
         .AddScoped<IGetCategoriesHandler, GetCategoriesHandler>()
         .AddScoped<IGetCategoryHandler, GetCategoryHandler>()
         .AddScoped<ICreateCategoryHandler, CreateCategoryHandler>()
         .AddScoped<IUpdateCategoryHandler, UpdateCategoryHandler>()
         .AddScoped<IDeleteCategoryHandler, DeleteCategoryHandler>()
+        .AddScoped<IGetCategoriesByProductHandler, GetCategoriesByProductHandler>()
+
         .AddScoped<IProductRepository, ProductRepository>()
         .AddScoped<ICategoryRepository, CategoryRepository>();
 }
