@@ -73,7 +73,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while AddProduct");
+                _logger.LogError(e, "Error while AddCategory");
                 throw;
             }
         }
@@ -94,7 +94,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while UpdateProduct");
+                _logger.LogError(e, "Error while UpdateCategory");
                 throw;
             }
         }
@@ -110,7 +110,7 @@ namespace CatalogService.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while UpdateProduct");
+                _logger.LogError(e, "Error while UpdateCategory");
                 throw;
             }
         }

@@ -1,7 +1,6 @@
 ﻿using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace CatalogService.Infrastructure.MsSql.Products;
 
@@ -9,7 +8,7 @@ public interface IProductRepository
 {
     public Task<IEnumerable<ProductDto>> GetProductsAsync();
     public Task<ProductDto> GetProductAsync(int productId);
-    public Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId);
+    Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId);
     public Task<int> CreateNew(CreateUpdateProductCommand command);
     public Task<ProductDto> Update(int productId, CreateUpdateProductCommand command);
     public Task<bool> Delete(int productId);

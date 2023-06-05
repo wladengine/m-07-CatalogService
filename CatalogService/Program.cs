@@ -1,4 +1,6 @@
+using CatalogService.Core.Handlers.Categories;
 using CatalogService.Core.Handlers.Products;
+using CatalogService.Infrastructure.MsSql.Categories;
 using CatalogService.Infrastructure.MsSql.Products;
 
 static void RegisterHandlers(WebApplicationBuilder webApplicationBuilder)
@@ -9,7 +11,13 @@ static void RegisterHandlers(WebApplicationBuilder webApplicationBuilder)
         .AddScoped<ICreateProductHandler, CreateProductHandler>()
         .AddScoped<IUpdateProductHandler, UpdateProductHandler>()
         .AddScoped<IDeleteProductHandler, DeleteProductHandler>()
-        .AddScoped<IProductRepository, ProductRepository>();
+        .AddScoped<IGetCategoriesHandler, GetCategoriesHandler>()
+        .AddScoped<IGetCategoryHandler, GetCategoryHandler>()
+        .AddScoped<ICreateCategoryHandler, CreateCategoryHandler>()
+        .AddScoped<IUpdateCategoryHandler, UpdateCategoryHandler>()
+        .AddScoped<IDeleteCategoryHandler, DeleteCategoryHandler>()
+        .AddScoped<IProductRepository, ProductRepository>()
+        .AddScoped<ICategoryRepository, CategoryRepository>();
 }
 
 var builder = WebApplication.CreateBuilder(args);
