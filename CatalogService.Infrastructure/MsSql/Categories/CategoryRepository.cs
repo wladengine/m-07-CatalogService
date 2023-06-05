@@ -16,10 +16,13 @@ public interface ICategoryRepository
 
 public class CategoryRepository : ICategoryRepository
 {
-    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
-    {
-        await using var context = new CatalogServiceContext();
-        return await context.Categories
+    private readonly CatalogServiceContext _context;
+
+    public CategoryRepository(CatalogServiceContext context) => 
+        _context = context;
+
+    public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync() =>
+        await _context.Categories
             .Select(x => new CategoryDto
             {
                 Id = x.Id,
@@ -33,12 +36,9 @@ public class CategoryRepository : ICategoryRepository
                 })
             })
             .ToArrayAsync();
-    }
 
-    public async Task<CategoryDto> GetCategoryAsync(int categoryId)
-    {
-        await using var context = new CatalogServiceContext();
-        return await context.Categories
+    public async Task<CategoryDto> GetCategoryAsync(int categoryId) =>
+        await _context.Categories
             .Select(x => new CategoryDto
             {
                 Id = x.Id,
@@ -52,12 +52,9 @@ public class CategoryRepository : ICategoryRepository
                 })
             })
             .SingleAsync(p => p.Id == categoryId);
-    }
 
-    public async Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId)
-    {
-        await using var context = new CatalogServiceContext();
-        return await context.Categories
+    public async Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId) =>
+        await _context.Categories
             .Where(x => x.Products.Any(c => c.Id == productId))
             .Select(x => new CategoryDto
             {
@@ -73,12 +70,9 @@ public class CategoryRepository : ICategoryRepository
                 })
             })
             .ToArrayAsync();
-    }
 
     public async Task<int> CreateNew(CreateUpdateCategoryCommand command)
     {
-        await using var context = new CatalogServiceContext();
-
         var category = new Category
         {
             Name = command.Name,
@@ -86,17 +80,15 @@ public class CategoryRepository : ICategoryRepository
             Products = new List<Product>()
         };
 
-        context.Categories.Add(category);
-        await context.SaveChangesAsync();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
 
         return category.Id;
     }
 
     public async Task<CategoryDto> Update(int categoryId, CreateUpdateCategoryCommand command)
     {
-        await using var context = new CatalogServiceContext();
-
-        Category? category = await context.Categories
+        Category? category = await _context.Categories
             .Include(x => x.Products)
             .SingleOrDefaultAsync(x => x.Id == categoryId);
 
@@ -108,7 +100,7 @@ public class CategoryRepository : ICategoryRepository
         category.Name = command.Name;
         category.Description = command.Description;
 
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return new CategoryDto
         {
@@ -127,9 +119,7 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<bool> Delete(int categoryId)
     {
-        await using var context = new CatalogServiceContext();
-
-        Category? category = await context.Categories
+        Category? category = await _context.Categories
             .Include(c => c.Products)
             .SingleOrDefaultAsync(x => x.Id == categoryId);
 
@@ -144,8 +134,8 @@ public class CategoryRepository : ICategoryRepository
             return false;
         }
 
-        context.Categories.Remove(category);
-        await context.SaveChangesAsync();
+        _context.Categories.Remove(category);
+        await _context.SaveChangesAsync();
 
         return true;
     }

@@ -16,10 +16,13 @@ public interface IProductRepository
 
 public class ProductRepository : IProductRepository
 {
-    public async Task<IEnumerable<ProductDto>> GetProductsAsync()
-    {
-        await using var context = new CatalogServiceContext();
-        return await context.Products
+    private readonly CatalogServiceContext _context;
+
+    public ProductRepository(CatalogServiceContext context) => 
+        _context = context;
+
+    public async Task<IEnumerable<ProductDto>> GetProductsAsync() =>
+        await _context.Products
             .Select(x => new ProductDto
             {
                 Id = x.Id,
@@ -33,12 +36,9 @@ public class ProductRepository : IProductRepository
                 })
             })
             .ToArrayAsync();
-    }
 
-    public async Task<ProductDto> GetProductAsync(int productId)
-    {
-        await using var context = new CatalogServiceContext();
-        return await context.Products
+    public async Task<ProductDto> GetProductAsync(int productId) =>
+        await _context.Products
             .Select(x => new ProductDto
             {
                 Id = x.Id,
@@ -52,12 +52,9 @@ public class ProductRepository : IProductRepository
                 })
             })
             .SingleAsync(p => p.Id == productId);
-    }
 
-    public async Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId)
-    {
-        await using var context = new CatalogServiceContext();
-        return await context.Products
+    public async Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId) =>
+        await _context.Products
             .Where(x => x.Categories.Any(c => c.Id == categoryId))
             .Select(x => new ProductDto
             {
@@ -72,12 +69,10 @@ public class ProductRepository : IProductRepository
                 })
             })
             .ToArrayAsync();
-    }
 
     public async Task<int> CreateNew(CreateUpdateProductCommand command)
     {
-        await using var context = new CatalogServiceContext();
-        List<Category> categories = await context.Categories
+        List<Category> categories = await _context.Categories
             .Where(x => command.Categories.Contains(x.Id))
             .ToListAsync();
 
@@ -89,17 +84,15 @@ public class ProductRepository : IProductRepository
             Categories = categories
         };
 
-        context.Products.Add(prod);
-        await context.SaveChangesAsync();
+        _context.Products.Add(prod);
+        await _context.SaveChangesAsync();
         
         return prod.Id;
     }
 
     public async Task<ProductDto> Update(int productId, CreateUpdateProductCommand command)
     {
-        await using var context = new CatalogServiceContext();
-
-        Product? product = await context.Products
+        Product? product = await _context.Products
             .Include(x => x.Categories)
             .SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -108,7 +101,7 @@ public class ProductRepository : IProductRepository
             return null;
         }
 
-        List<Category> categories = await context.Categories
+        List<Category> categories = await _context.Categories
             .Where(x => command.Categories.Contains(x.Id))
             .ToListAsync();
 
@@ -132,7 +125,7 @@ public class ProductRepository : IProductRepository
             product.Categories.Remove(category);
         }
 
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return new ProductDto
         {
@@ -150,9 +143,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<bool> Delete(int productId)
     {
-        await using var context = new CatalogServiceContext();
-
-        Product? product = await context.Products
+        Product? product = await _context.Products
             .Include(c => c.Categories)
             .SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -166,10 +157,10 @@ public class ProductRepository : IProductRepository
         {
             product.Categories.Remove(category);
         }
-        await context.SaveChangesAsync();
-        
-        context.Products.Remove(product);
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
 
         return true;
     }

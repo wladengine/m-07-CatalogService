@@ -1,7 +1,9 @@
 using CatalogService.Core.Handlers.Categories;
 using CatalogService.Core.Handlers.Products;
+using CatalogService.Infrastructure.MsSql;
 using CatalogService.Infrastructure.MsSql.Categories;
 using CatalogService.Infrastructure.MsSql.Products;
+using Microsoft.EntityFrameworkCore;
 
 static void RegisterHandlers(WebApplicationBuilder webApplicationBuilder)
 {
@@ -32,6 +34,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<CatalogServiceContext>(
+    builder => builder.UseSqlServer());
 
 RegisterHandlers(builder);
 
