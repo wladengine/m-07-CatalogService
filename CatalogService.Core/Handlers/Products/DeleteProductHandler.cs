@@ -1,10 +1,11 @@
-﻿using CatalogService.Infrastructure.MsSql.Products;
+﻿using CatalogService.Core.Commands.Product;
+using CatalogService.Infrastructure.MsSql.Products;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
 
-public interface IDeleteProductHandler
+public interface IDeleteProductHandler : IRequestHandler<DeleteProductCommand, bool>
 {
-    Task<bool> HandleAsync(int id);
 }
 
 public class DeleteProductHandler : IDeleteProductHandler
@@ -13,6 +14,6 @@ public class DeleteProductHandler : IDeleteProductHandler
     public DeleteProductHandler(IProductRepository productRepository) =>
         _productRepository = productRepository;
 
-    public async Task<bool> HandleAsync(int id) =>
-        await _productRepository.Delete(id);
+    public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken) =>
+        await _productRepository.Delete(request.Id);
 }

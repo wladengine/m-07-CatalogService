@@ -1,3 +1,4 @@
+using CatalogService.Core;
 using CatalogService.Core.Handlers.Categories;
 using CatalogService.Core.Handlers.Products;
 using CatalogService.Infrastructure.MsSql;
@@ -37,6 +38,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CatalogServiceContext>(
     builder => builder.UseSqlServer());
+
+builder.Services.AddMediatR(
+    cfg => cfg.RegisterServicesFromAssembly(typeof(AssemblyEntryPoint).Assembly));
 
 RegisterHandlers(builder);
 

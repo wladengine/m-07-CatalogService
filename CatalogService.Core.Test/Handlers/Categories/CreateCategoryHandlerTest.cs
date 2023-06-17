@@ -1,13 +1,23 @@
-﻿using CatalogService.Core.Commands;
+﻿using CatalogService.Core.Commands.Category;
+using CatalogService.Core.Entities;
 using CatalogService.Core.Handlers.Categories;
+using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Categories;
+using MediatR;
 using Moq;
 
-namespace CatalogService.Core.Test.Handlers.Categories;
+namespace CatalogService.Core.Tests.Handlers.Categories;
 
 public class CreateCategoryHandlerTest
 {
-    private const int DummyId = 42;
+    private static readonly CategoryDto DummyCategory = new()
+    {
+        Id = 42,
+        Name = nameof(Category.Name),
+        Description = nameof(Category.Description),
+        Products = new List<ProductBriefDto>()
+    };
+
     [Fact]
     public async Task HandleAsync_ReturnsExpected()
     {
@@ -15,18 +25,19 @@ public class CreateCategoryHandlerTest
         ICreateCategoryHandler categoryHandler = new CreateCategoryHandler(GetRepositoryMock().Object);
 
         // Act
-        int result = await categoryHandler.HandleAsync(new CategoryCommand());
+        Category result = await categoryHandler.Handle(new CreateCategoryCommand("a", "b"), CancellationToken.None);
 
         // Assert
-        Assert.Equal(DummyId, result);
+        Assert.Equal(DummyCategory.Id, result.Id);
+        Assert.Equal(DummyCategory.Id, result.Id);
     }
 
     private static Mock<ICategoryRepository> GetRepositoryMock()
     {
         var repository = new Mock<ICategoryRepository>();
         repository
-            .Setup(x => x.CreateNew(It.IsAny<CreateUpdateCategoryCommand>()))
-            .ReturnsAsync(DummyId);
+            .Setup(x => x.CreateNew(It.IsAny<CreateCategoryDbCommand>()))
+            .ReturnsAsync(DummyCategory);
 
         return repository;
     }

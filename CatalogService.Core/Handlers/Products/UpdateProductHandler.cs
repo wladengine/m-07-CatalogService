@@ -1,12 +1,12 @@
-﻿using CatalogService.Core.Commands;
+﻿using CatalogService.Core.Commands.Product;
 using CatalogService.Core.Entities;
 using CatalogService.Infrastructure.MsSql.Products;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
 
-public interface IUpdateProductHandler
+public interface IUpdateProductHandler : IRequestHandler<UpdateProductCommand, Product>
 {
-    Task<Product> HandleAsync(int id, ProductCommand product);
 }
 
 public class UpdateProductHandler : IUpdateProductHandler
@@ -15,9 +15,9 @@ public class UpdateProductHandler : IUpdateProductHandler
     public UpdateProductHandler(IProductRepository productRepository) =>
         _productRepository = productRepository;
 
-    public async Task<Product> HandleAsync(int id, ProductCommand product)
+    public async Task<Product> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         return CommonMapper.MapToProduct(
-            await _productRepository.Update(id, CommonMapper.MapToCommand(product)));
+            await _productRepository.Update(CommonMapper.MapToDbCommand(request)));
     }
 }

@@ -9,8 +9,8 @@ public interface IProductRepository
     public Task<IEnumerable<ProductDto>> GetProductsAsync();
     public Task<ProductDto> GetProductAsync(int productId);
     Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId);
-    public Task<int> CreateNew(CreateUpdateProductCommand command);
-    public Task<ProductDto> Update(int productId, CreateUpdateProductCommand command);
+    public Task<ProductDto> CreateNew(CreateProductDbCommand dbCommand);
+    public Task<ProductDto> Update(UpdateProductDbCommand dbCommand);
     public Task<bool> Delete(int productId);
 }
 
@@ -70,31 +70,31 @@ public class ProductRepository : IProductRepository
             })
             .ToArrayAsync();
 
-    public async Task<int> CreateNew(CreateUpdateProductCommand command)
+    public async Task<ProductDto> CreateNew(CreateProductDbCommand dbCommand)
     {
         List<Category> categories = await _context.Categories
-            .Where(x => command.Categories.Contains(x.Id))
+            .Where(x => dbCommand.Categories.Contains(x.Id))
             .ToListAsync();
 
         var prod = new Product
         {
-            Name = command.Name,
-            Description = command.Description,
-            Price = command.Price,
+            Name = dbCommand.Name,
+            Description = dbCommand.Description,
+            Price = dbCommand.Price,
             Categories = categories
         };
 
         _context.Products.Add(prod);
         await _context.SaveChangesAsync();
-        
-        return prod.Id;
+
+        return MapToProductDto(prod);
     }
 
-    public async Task<ProductDto> Update(int productId, CreateUpdateProductCommand command)
+    public async Task<ProductDto> Update(UpdateProductDbCommand dbCommand)
     {
         Product? product = await _context.Products
             .Include(x => x.Categories)
-            .SingleOrDefaultAsync(x => x.Id == productId);
+            .SingleOrDefaultAsync(x => x.Id == dbCommand.Id);
 
         if (product == null)
         {
@@ -102,12 +102,12 @@ public class ProductRepository : IProductRepository
         }
 
         List<Category> categories = await _context.Categories
-            .Where(x => command.Categories.Contains(x.Id))
+            .Where(x => dbCommand.Categories.Contains(x.Id))
             .ToListAsync();
 
-        product.Name = command.Name;
-        product.Description = command.Description;
-        product.Price = command.Price;
+        product.Name = dbCommand.Name;
+        product.Description = dbCommand.Description;
+        product.Price = dbCommand.Price;
 
         foreach (Category category in categories)
         {
@@ -127,6 +127,11 @@ public class ProductRepository : IProductRepository
 
         await _context.SaveChangesAsync();
 
+        return MapToProductDto(product);
+    }
+
+    private static ProductDto MapToProductDto(Product product)
+    {
         return new ProductDto
         {
             Id = product.Id,

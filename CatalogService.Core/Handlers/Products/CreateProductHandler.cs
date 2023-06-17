@@ -1,11 +1,13 @@
-﻿using CatalogService.Core.Commands;
+﻿using CatalogService.Core.Commands.Product;
+using CatalogService.Core.Entities;
+using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Products;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
 
-public interface ICreateProductHandler
+public interface ICreateProductHandler : IRequestHandler<CreateProductCommand, Product>
 {
-    Task<int> HandleAsync(ProductCommand product);
 }
 
 public class CreateProductHandler : ICreateProductHandler
@@ -15,8 +17,9 @@ public class CreateProductHandler : ICreateProductHandler
     public CreateProductHandler(IProductRepository productRepository) =>
         _productRepository = productRepository;
 
-    public async Task<int> HandleAsync(ProductCommand product)
+    public async Task<Product> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        return await _productRepository.CreateNew(CommonMapper.MapToCommand(product));
+        ProductDto productDto = await _productRepository.CreateNew(CommonMapper.MapToDbCommand(request));
+        return CommonMapper.MapToProduct(productDto);
     }
 }

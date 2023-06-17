@@ -1,12 +1,13 @@
 ﻿using CatalogService.Core.Entities;
+using CatalogService.Core.Queries.Product;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Products;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
 
-public interface IGetProductHandler
+public interface IGetProductHandler : IRequestHandler<GetProductByIdQuery, Product>
 {
-    Task<Product> HandleAsync(int productId);
 }
 
 public class GetProductHandler : IGetProductHandler
@@ -16,9 +17,10 @@ public class GetProductHandler : IGetProductHandler
     public GetProductHandler(IProductRepository productRepository) =>
         _productRepository = productRepository;
 
-    public async Task<Product> HandleAsync(int productId)
+
+    public async Task<Product> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        ProductDto product = await _productRepository.GetProductAsync(productId);
-        return CommonMapper.MapToProduct(product);
+        ProductDto productDto = await _productRepository.GetProductAsync(request.Id);
+        return CommonMapper.MapToProduct(productDto);
     }
 }

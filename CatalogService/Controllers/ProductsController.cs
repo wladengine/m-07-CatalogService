@@ -1,7 +1,9 @@
-using CatalogService.Core.Commands;
+using CatalogService.Core.Commands.Product;
 using CatalogService.Core.Entities;
-using CatalogService.Core.Handlers.Categories;
 using CatalogService.Core.Handlers.Products;
+using CatalogService.Core.Queries.Category;
+using CatalogService.Core.Queries.Product;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogService.Controllers
@@ -11,127 +13,69 @@ namespace CatalogService.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ILogger<ProductsController> _logger;
-        private readonly IGetProductsHandler _getProductsHandler;
-        private readonly IGetProductHandler _getProductHandler;
-        private readonly ICreateProductHandler _createProductHandler;
-        private readonly IUpdateProductHandler _updateProductHandler;
-        private readonly IDeleteProductHandler _deleteProductHandler;
-        private readonly IGetCategoriesByProductHandler _getCategoriesByProductHandler;
+        private readonly IMediator _mediator;
 
         public ProductsController(
             ILogger<ProductsController> logger, 
-            IGetProductsHandler getProductsHandler,
-            IGetProductHandler getProductHandler,
-            ICreateProductHandler createProductHandler,
-            IUpdateProductHandler updateProductHandler,
-            IDeleteProductHandler deleteProductHandler,
-            IGetCategoriesByProductHandler getCategoriesByProductHandler)
+            IMediator mediator)
         {
             _logger = logger;
-            _getProductsHandler = getProductsHandler;
-            _getProductHandler = getProductHandler;
-            _createProductHandler = createProductHandler;
-            _updateProductHandler = updateProductHandler;
-            _deleteProductHandler = deleteProductHandler;
-            _getCategoriesByProductHandler = getCategoriesByProductHandler;
+            _mediator = mediator;
         }
 
         // GET /api/products
         [HttpGet(Name = "Get all products")]
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
-        {
-            try
-            {
-                return await _getProductsHandler.HandleAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(GetAllProductsAsync)}");
-                throw;
-            }
-        }
+        public async Task<IEnumerable<Product>> GetAllProductsAsync() => 
+            await _mediator.Send(new GetAllProductsQuery());
 
         // GET /api/products/123
-        [HttpGet(template: "{id}", Name = "Get single product")]
-        public async Task<Product> GetProductByIdAsync(int id)
-        {
-            try
-            {
-                return await _getProductHandler.HandleAsync(id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(GetProductByIdAsync)}");
-                throw;
-            }
-        }
-        
+        [HttpGet(template: "{id}", Name = "Get single createProduct")]
+        public async Task<Product> GetProductByIdAsync(int id) => 
+            await _mediator.Send(new GetProductByIdQuery(id));
+
         // GET /api/products/123/categories
-        [HttpGet(template: "{id}/categories", Name = "Get product categories")]
-        public async Task<IEnumerable<Category>> GetCategoriesByProductIdAsync(int id)
-        {
-            try
-            {
-                return await _getCategoriesByProductHandler.HandleAsync(id);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(GetCategoriesByProductIdAsync)}");
-                throw;
-            }
-        }
+        [HttpGet(template: "{id}/categories", Name = "Get createProduct categories")]
+        public async Task<IEnumerable<Category>> GetCategoriesByProductIdAsync(int id) => 
+            await _mediator.Send(new GetCategoriesByProductIdQuery(id));
 
         // POST /api/products
-        [HttpPost(Name = "Add new product")]
-        public async Task<IActionResult> AddProduct([FromBody] ProductCommand productCommand)
+        [HttpPost(Name = "Add new createProduct")]
+        public async Task<IActionResult> AddProduct([FromBody] CreateProductCommand command)
         {
-            try
-            {
-                int id = await _createProductHandler.HandleAsync(productCommand);
-                return Created($"api/products/{id}", productCommand);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(AddProduct)}");
-                throw;
-            }
+            var request = new CreateProductCommand(
+                command.Name,
+                command.Description,
+                command.Price,
+                command.CategoryIds);
+            Product product = await _mediator.Send(request);
+            return Created($"api/products/{product.Id}", product);
         }
 
         // PUT /api/products/123
-        [HttpPut("{id}", Name = "Update existing product")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductCommand productCommand)
+        [HttpPut("{id}", Name = "Update existing createProduct")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] CreateProductCommand command)
         {
-            try
+            var request = new UpdateProductCommand(
+                id,
+                command.Name,
+                command.Description,
+                command.Price,
+                command.CategoryIds);
+            Product updatedProduct = await _mediator.Send(request);
+            if (updatedProduct == null)
             {
-                Product updatedProduct = await _updateProductHandler.HandleAsync(id, productCommand);
-                if (updatedProduct == null)
-                {
-                    return NotFound();
-                }
+                return NotFound();
+            }
 
-                return Ok(updatedProduct);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(UpdateProduct)}");
-                throw;
-            }
+            return Ok(updatedProduct);
         }
 
         // DELETE /api/products/123
-        [HttpDelete("{id}", Name = "Delete existing product")]
+        [HttpDelete("{id}", Name = "Delete existing createProduct")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            try
-            {
-                bool productExists = await _deleteProductHandler.HandleAsync(id);
-                return productExists ? Ok() : NotFound();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(DeleteProduct)}");
-                throw;
-            }
+            bool productExists = await _mediator.Send(new DeleteProductCommand(id));
+            return productExists ? NoContent() : NotFound();
         }
     }
 }

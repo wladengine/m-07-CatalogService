@@ -9,8 +9,8 @@ public interface ICategoryRepository
     Task<IEnumerable<CategoryDto>> GetCategoriesAsync();
     Task<CategoryDto> GetCategoryAsync(int categoryId);
     public Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId);
-    Task<int> CreateNew(CreateUpdateCategoryCommand command);
-    Task<CategoryDto> Update(int categoryId, CreateUpdateCategoryCommand command);
+    Task<CategoryDto> CreateNew(CreateCategoryDbCommand dbCommand);
+    Task<CategoryDto> Update(UpdateCategoryDbCommand dbCommand);
     Task<bool> Delete(int categoryId);
 }
 
@@ -71,38 +71,42 @@ public class CategoryRepository : ICategoryRepository
             })
             .ToArrayAsync();
 
-    public async Task<int> CreateNew(CreateUpdateCategoryCommand command)
+    public async Task<CategoryDto> CreateNew(CreateCategoryDbCommand dbCommand)
     {
         var category = new Category
         {
-            Name = command.Name,
-            Description = command.Description,
+            Name = dbCommand.Name,
+            Description = dbCommand.Description,
             Products = new List<Product>()
         };
 
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        return category.Id;
+        return ConvertToCategoryDto(category);
     }
 
-    public async Task<CategoryDto> Update(int categoryId, CreateUpdateCategoryCommand command)
+    public async Task<CategoryDto> Update(UpdateCategoryDbCommand dbCommand)
     {
         Category? category = await _context.Categories
             .Include(x => x.Products)
-            .SingleOrDefaultAsync(x => x.Id == categoryId);
+            .SingleOrDefaultAsync(x => x.Id == dbCommand.Id);
 
         if (category == null)
         {
             return null;
         }
 
-        category.Name = command.Name;
-        category.Description = command.Description;
+        category.Name = dbCommand.Name;
+        category.Description = dbCommand.Description;
 
         await _context.SaveChangesAsync();
 
-        return new CategoryDto
+        return ConvertToCategoryDto(category);
+    }
+
+    private static CategoryDto ConvertToCategoryDto(Category category) =>
+        new()
         {
             Id = category.Id,
             Name = category.Name,
@@ -115,7 +119,6 @@ public class CategoryRepository : ICategoryRepository
                 Price = b.Price,
             })
         };
-    }
 
     public async Task<bool> Delete(int categoryId)
     {

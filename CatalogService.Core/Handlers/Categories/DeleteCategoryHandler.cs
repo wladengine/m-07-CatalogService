@@ -1,10 +1,11 @@
-﻿using CatalogService.Infrastructure.MsSql.Categories;
+﻿using CatalogService.Core.Commands.Category;
+using CatalogService.Infrastructure.MsSql.Categories;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Categories;
 
-public interface IDeleteCategoryHandler
+public interface IDeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, bool>
 {
-    Task<bool> HandleAsync(int id);
 }
 
 public class DeleteCategoryHandler : IDeleteCategoryHandler
@@ -14,6 +15,6 @@ public class DeleteCategoryHandler : IDeleteCategoryHandler
     public DeleteCategoryHandler(ICategoryRepository categoryRepository) => 
         _categoryRepository = categoryRepository;
 
-    public async Task<bool> HandleAsync(int id) =>
-        await _categoryRepository.Delete(id);
+    public async Task<bool> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken) => 
+        await _categoryRepository.Delete(request.Id);
 }

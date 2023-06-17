@@ -1,11 +1,12 @@
-﻿using CatalogService.Core.Commands;
+﻿using CatalogService.Core.Commands.Category;
+using CatalogService.Core.Entities;
 using CatalogService.Infrastructure.MsSql.Categories;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Categories;
 
-public interface ICreateCategoryHandler
+public interface ICreateCategoryHandler : IRequestHandler<CreateCategoryCommand, Category>
 {
-    Task<int> HandleAsync(CategoryCommand product);
 }
 
 public class CreateCategoryHandler : ICreateCategoryHandler
@@ -15,8 +16,7 @@ public class CreateCategoryHandler : ICreateCategoryHandler
     public CreateCategoryHandler(ICategoryRepository categoryRepository) => 
         _categoryRepository = categoryRepository;
 
-    public async Task<int> HandleAsync(CategoryCommand product)
-    {
-        return await _categoryRepository.CreateNew(CommonMapper.MapToCommand(product));
-    }
+    public async Task<Category> Handle(CreateCategoryCommand request, CancellationToken cancellationToken) =>
+        CommonMapper.MapToCategory(
+            await _categoryRepository.CreateNew(CommonMapper.MapToDbCommand(request)));
 }

@@ -1,12 +1,13 @@
 ﻿using CatalogService.Core.Entities;
+using CatalogService.Core.Queries.Category;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Categories;
+using MediatR;
 
 namespace CatalogService.Core.Handlers.Categories;
 
-public interface IGetCategoryHandler
+public interface IGetCategoryHandler : IRequestHandler<GetCategoryByIdQuery, Category>
 {
-    Task<Category> HandleAsync(int categoryId);
 }
 
 public class GetCategoryHandler : IGetCategoryHandler
@@ -16,9 +17,9 @@ public class GetCategoryHandler : IGetCategoryHandler
     public GetCategoryHandler(ICategoryRepository categoryRepository) =>
         _categoryRepository = categoryRepository;
 
-    public async Task<Category> HandleAsync(int categoryId)
+    public async Task<Category> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
     {
-        CategoryDto category = await _categoryRepository.GetCategoryAsync(categoryId);
+        CategoryDto category = await _categoryRepository.GetCategoryAsync(request.Id);
         return CommonMapper.MapToCategory(category);
     }
 }

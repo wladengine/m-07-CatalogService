@@ -1,4 +1,5 @@
-﻿using CatalogService.Core.Commands;
+﻿using CatalogService.Core.Commands.Category;
+using CatalogService.Core.Commands.Product;
 using CatalogService.Core.Entities;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Categories;
@@ -23,14 +24,6 @@ internal static class CommonMapper
         Name = category.Name,
     };
 
-    public static CreateUpdateProductCommand MapToCommand(ProductCommand productCommand) => new()
-    {
-        Name = productCommand.Name,
-        Description = productCommand.Description,
-        Price = productCommand.Price,
-        Categories = productCommand.CategoryIds
-    };
-
     public static Category MapToCategory(CategoryDto category) => new()
     {
         Id = category.Id,
@@ -47,9 +40,22 @@ internal static class CommonMapper
         Price = product.Price,
     };
 
-    public static CreateUpdateCategoryCommand MapToCommand(CategoryCommand categoryCommand) => new()
-    {
-        Name = categoryCommand.Name,
-        Description = categoryCommand.Description,
-    };
+    public static CreateProductDbCommand MapToDbCommand(CreateProductCommand command) => new(
+        command.Name,
+        command.Description,
+        command.Price,
+        command.CategoryIds);
+
+    public static UpdateProductDbCommand MapToDbCommand(UpdateProductCommand command) => new(
+        command.Id,
+        command.Name,
+        command.Description,
+        command.Price,
+        command.CategoryIds);
+
+    public static CreateCategoryDbCommand MapToDbCommand(CreateCategoryCommand command) =>
+        new(command.Name, command.Description);
+
+    public static UpdateCategoryDbCommand MapToDbCommand(UpdateCategoryCommand command) => 
+        new(command.Id, command.Name, command.Description);
 }
