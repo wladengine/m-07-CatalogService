@@ -4,6 +4,6 @@ using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
 
-public interface IGetProductsHandler : IRequestHandler<GetAllProductsQuery, IEnumerable<Product>>
+public interface IGetProductsHandler : IRequestHandler<GetAllProductsQuery, Product[]>
 {
 }

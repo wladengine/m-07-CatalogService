@@ -1,6 +1,5 @@
 using CatalogService.Core.Commands.Product;
 using CatalogService.Core.Entities;
-using CatalogService.Core.Handlers.Products;
 using CatalogService.Core.Queries.Category;
 using CatalogService.Core.Queries.Product;
 using MediatR;
@@ -25,7 +24,7 @@ namespace CatalogService.Controllers
 
         // GET /api/products
         [HttpGet(Name = "Get all products")]
-        public async Task<IEnumerable<Product>> GetAllProductsAsync() => 
+        public async Task<Product[]> GetAllProductsAsync() => 
             await _mediator.Send(new GetAllProductsQuery());
 
         // GET /api/products/123
@@ -35,7 +34,7 @@ namespace CatalogService.Controllers
 
         // GET /api/products/123/categories
         [HttpGet(template: "{id}/categories", Name = "Get createProduct categories")]
-        public async Task<IEnumerable<Category>> GetCategoriesByProductIdAsync(int id) => 
+        public async Task<Category[]> GetCategoriesByProductIdAsync(int id) => 
             await _mediator.Send(new GetCategoriesByProductIdQuery(id));
 
         // POST /api/products

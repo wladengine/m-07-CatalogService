@@ -17,12 +17,12 @@ public class GetCategoriesByProductHandler : IGetCategoriesByProductHandler
         _memoryCache = memoryCache;
     }
 
-    public async Task<IEnumerable<Category>> Handle(GetCategoriesByProductIdQuery request, CancellationToken cancellationToken) =>
+    public async Task<Category[]> Handle(GetCategoriesByProductIdQuery request, CancellationToken cancellationToken) =>
         await _memoryCache.GetOrCreateAsync($"product_{request.ProductId}_categories", async entry =>
         {
             IEnumerable<CategoryDto> categoriesDto =
                 await _categoryRepository.GetCategoriesByProductAsync(request.ProductId);
-            IEnumerable<Category> categories = categoriesDto.Select(CommonMapper.MapToCategory);
+            Category[] categories = categoriesDto.Select(CommonMapper.MapToCategory).ToArray();
             entry.Value = categories;
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
             return categories;

@@ -5,4 +5,4 @@ public record UpdateProductDbCommand(
     string Name,
     string Description,
     decimal Price,
-    List<int> Categories);
+    IEnumerable<int> Categories);

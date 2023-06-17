@@ -7,4 +7,4 @@ public record UpdateProductCommand(
     string Name,
     string Description,
     decimal Price,
-    List<int> CategoryIds) : IRequest<Entities.Product>;
+    IEnumerable<int> CategoryIds) : IRequest<Entities.Product>;

@@ -2,4 +2,4 @@
 
 namespace CatalogService.Core.Queries.Product;
 
-public record GetAllProductsQuery() : IRequest<IEnumerable<Entities.Product>>;
+public record GetAllProductsQuery() : IRequest<Entities.Product[]>;

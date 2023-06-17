@@ -11,7 +11,7 @@ public class ProductRepository : IProductRepository
     public ProductRepository(CatalogServiceContext context) => 
         _context = context;
 
-    public async Task<IEnumerable<ProductDto>> GetProductsAsync() =>
+    public async Task<ProductDto[]> GetProductsAsync() =>
         await _context.Products
             .Select(x => MapToProductDto(x))
             .ToArrayAsync();
@@ -19,7 +19,7 @@ public class ProductRepository : IProductRepository
     public async Task<ProductDto> GetProductAsync(int productId) =>
         MapToProductDto(await _context.Products.SingleAsync(p => p.Id == productId));
 
-    public async Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId) =>
+    public async Task<ProductDto[]> GetProductsByCategory(int categoryId) =>
         await _context.Products
             .Where(x => x.Categories.Any(c => c.Id == categoryId))
             .Select(x => MapToProductDto(x))

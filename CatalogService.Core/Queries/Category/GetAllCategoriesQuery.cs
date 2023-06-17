@@ -2,4 +2,4 @@
 
 namespace CatalogService.Core.Queries.Category;
 
-public record GetAllCategoriesQuery() : IRequest<IEnumerable<Entities.Category>>;
+public record GetAllCategoriesQuery() : IRequest<Entities.Category[]>;

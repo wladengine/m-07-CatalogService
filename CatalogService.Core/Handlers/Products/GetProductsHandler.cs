@@ -17,11 +17,11 @@ public class GetProductsHandler : IGetProductsHandler
         _memoryCache = memoryCache;
     }
 
-    public async Task<IEnumerable<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken) =>
+    public async Task<Product[]> Handle(GetAllProductsQuery request, CancellationToken cancellationToken) =>
         await _memoryCache.GetOrCreateAsync("productsAll", async entry =>
         {
             IEnumerable<ProductDto> productsDto = await _productRepository.GetProductsAsync();
-            IEnumerable<Product> products = productsDto.Select(CommonMapper.MapToProduct);
+            Product[] products = productsDto.Select(CommonMapper.MapToProduct).ToArray();
             entry.Value = products;
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
             return products;

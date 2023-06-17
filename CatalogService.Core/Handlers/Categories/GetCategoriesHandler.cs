@@ -17,11 +17,11 @@ public class GetCategoriesHandler : IGetCategoriesHandler
         _memoryCache = memoryCache;
     }
 
-    public async Task<IEnumerable<Category>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken) =>
+    public async Task<Category[]> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken) =>
         await _memoryCache.GetOrCreateAsync("categoriesAll", async entry =>
         {
             IEnumerable<CategoryDto> categoriesDto = await _categoryRepository.GetCategoriesAsync();
-            var categories = categoriesDto.Select(CommonMapper.MapToCategory);
+            Category[] categories = categoriesDto.Select(CommonMapper.MapToCategory).ToArray();
             entry.Value = categories;
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
             return categories;

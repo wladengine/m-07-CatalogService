@@ -4,6 +4,6 @@ using MediatR;
 
 namespace CatalogService.Core.Handlers.Categories;
 
-public interface IGetCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, IEnumerable<Category>>
+public interface IGetCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, Category[]>
 {
 }
