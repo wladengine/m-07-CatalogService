@@ -64,8 +64,8 @@ namespace CatalogService.Controllers
         [HttpDelete("{id}", Name = "DeleteAsync existing category")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            bool categoryExists = await _mediator.Send(new DeleteCategoryCommand(id));
-            return categoryExists ? NoContent() : NotFound();
+            await _mediator.Send(new DeleteCategoryCommand(id));
+            return NoContent();
         }
     }
 }

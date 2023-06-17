@@ -74,8 +74,8 @@ namespace CatalogService.Controllers
         [HttpDelete("{id}", Name = "DeleteAsync existing createProduct")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            bool productExists = await _mediator.Send(new DeleteProductCommand(id));
-            return productExists ? NoContent() : NotFound();
+            await _mediator.Send(new DeleteProductCommand(id));
+            return NoContent();
         }
     }
 }
