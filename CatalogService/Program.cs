@@ -42,6 +42,8 @@ builder.Services.AddDbContext<CatalogServiceContext>(
 builder.Services.AddMediatR(
     cfg => cfg.RegisterServicesFromAssembly(typeof(AssemblyEntryPoint).Assembly));
 
+builder.Services.AddMemoryCache();
+
 RegisterHandlers(builder);
 
 var app = builder.Build();

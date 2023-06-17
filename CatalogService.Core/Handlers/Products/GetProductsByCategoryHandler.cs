@@ -2,19 +2,32 @@
 using CatalogService.Core.Queries.Product;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Products;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CatalogService.Core.Handlers.Products;
 
 public class GetProductsByCategoryHandler : IGetProductsByCategoryHandler
 {
     private readonly IProductRepository _productRepository;
+    private readonly IMemoryCache _memoryCache;
 
-    public GetProductsByCategoryHandler(IProductRepository productRepository) => 
-        _productRepository = productRepository;
-
-    public async Task<IEnumerable<Product>> Handle(GetProductsByCategoryIdQuery request, CancellationToken cancellationToken)
+    public GetProductsByCategoryHandler(IProductRepository productRepository, IMemoryCache memoryCache)
     {
-        IEnumerable<ProductDto> categories = await _productRepository.GetProductsByCategory(request.CategoryId);
-        return categories.Select(CommonMapper.MapToProduct);
+        _productRepository = productRepository;
+        _memoryCache = memoryCache;
+    }
+
+    public async Task<IEnumerable<Product>> Handle(GetProductsByCategoryIdQuery request,
+        CancellationToken cancellationToken)
+    {
+        var key = $"category_{request.CategoryId}_products";
+        return await _memoryCache.GetOrCreateAsync(key, async entry =>
+        {
+            IEnumerable<ProductDto> productsDto = await _productRepository.GetProductsByCategory(request.CategoryId);
+            var products = productsDto.Select(CommonMapper.MapToProduct);
+            entry.Value = products;
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+            return products;
+        });
     }
 }

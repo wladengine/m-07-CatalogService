@@ -2,19 +2,28 @@
 using CatalogService.Core.Queries.Product;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Products;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CatalogService.Core.Handlers.Products;
 
 public class GetProductsHandler : IGetProductsHandler
 {
     private readonly IProductRepository _productRepository;
+    private readonly IMemoryCache _memoryCache;
 
-    public GetProductsHandler(IProductRepository productRepository) =>
-        _productRepository = productRepository;
-
-    public async Task<IEnumerable<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+    public GetProductsHandler(IProductRepository productRepository, IMemoryCache memoryCache)
     {
-        IEnumerable<ProductDto> products = await _productRepository.GetProductsAsync();
-        return products.Select(CommonMapper.MapToProduct);
+        _productRepository = productRepository;
+        _memoryCache = memoryCache;
     }
+
+    public async Task<IEnumerable<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken) =>
+        await _memoryCache.GetOrCreateAsync("productsAll", async entry =>
+        {
+            IEnumerable<ProductDto> productsDto = await _productRepository.GetProductsAsync();
+            IEnumerable<Product> products = productsDto.Select(CommonMapper.MapToProduct);
+            entry.Value = products;
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+            return products;
+        });
 }
