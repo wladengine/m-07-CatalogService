@@ -1,13 +1,8 @@
 ﻿using CatalogService.Core.Commands.Product;
 using CatalogService.Core.Entities;
 using CatalogService.Infrastructure.MsSql.Products;
-using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
-
-public interface IUpdateProductHandler : IRequestHandler<UpdateProductCommand, Product>
-{
-}
 
 public class UpdateProductHandler : IUpdateProductHandler
 {
@@ -18,6 +13,6 @@ public class UpdateProductHandler : IUpdateProductHandler
     public async Task<Product> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         return CommonMapper.MapToProduct(
-            await _productRepository.Update(CommonMapper.MapToDbCommand(request)));
+            await _productRepository.UpdateAsync(CommonMapper.MapToDbCommand(request)));
     }
 }

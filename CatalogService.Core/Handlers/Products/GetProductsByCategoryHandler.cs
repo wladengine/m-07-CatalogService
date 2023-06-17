@@ -2,13 +2,8 @@
 using CatalogService.Core.Queries.Product;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Products;
-using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
-
-public interface IGetProductsByCategoryHandler : IRequestHandler<GetProductsByCategoryIdQuery, IEnumerable<Product>>
-{
-}
 
 public class GetProductsByCategoryHandler : IGetProductsByCategoryHandler
 {
@@ -20,6 +15,6 @@ public class GetProductsByCategoryHandler : IGetProductsByCategoryHandler
     public async Task<IEnumerable<Product>> Handle(GetProductsByCategoryIdQuery request, CancellationToken cancellationToken)
     {
         IEnumerable<ProductDto> categories = await _productRepository.GetProductsByCategory(request.CategoryId);
-        return categories.Select(CommonMapper.MapToProduct).ToArray();
+        return categories.Select(CommonMapper.MapToProduct);
     }
 }

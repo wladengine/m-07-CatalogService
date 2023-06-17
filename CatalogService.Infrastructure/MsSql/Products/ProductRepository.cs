@@ -4,16 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CatalogService.Infrastructure.MsSql.Products;
 
-public interface IProductRepository
-{
-    public Task<IEnumerable<ProductDto>> GetProductsAsync();
-    public Task<ProductDto> GetProductAsync(int productId);
-    Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId);
-    public Task<ProductDto> CreateNew(CreateProductDbCommand dbCommand);
-    public Task<ProductDto> Update(UpdateProductDbCommand dbCommand);
-    public Task<bool> Delete(int productId);
-}
-
 public class ProductRepository : IProductRepository
 {
     private readonly CatalogServiceContext _context;
@@ -23,54 +13,19 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<ProductDto>> GetProductsAsync() =>
         await _context.Products
-            .Select(x => new ProductDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Price = x.Price,
-                Categories = x.Categories.Select(b => new CategoryBriefDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                })
-            })
+            .Select(x => MapToProductDto(x))
             .ToArrayAsync();
 
     public async Task<ProductDto> GetProductAsync(int productId) =>
-        await _context.Products
-            .Select(x => new ProductDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Price = x.Price,
-                Categories = x.Categories.Select(b => new CategoryBriefDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                })
-            })
-            .SingleAsync(p => p.Id == productId);
+        MapToProductDto(await _context.Products.SingleAsync(p => p.Id == productId));
 
     public async Task<IEnumerable<ProductDto>> GetProductsByCategory(int categoryId) =>
         await _context.Products
             .Where(x => x.Categories.Any(c => c.Id == categoryId))
-            .Select(x => new ProductDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Price = x.Price,
-                Categories = x.Categories.Select(b => new CategoryBriefDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                })
-            })
+            .Select(x => MapToProductDto(x))
             .ToArrayAsync();
 
-    public async Task<ProductDto> CreateNew(CreateProductDbCommand dbCommand)
+    public async Task<ProductDto> CreateNewAsync(CreateProductDbCommand dbCommand)
     {
         List<Category> categories = await _context.Categories
             .Where(x => dbCommand.Categories.Contains(x.Id))
@@ -90,7 +45,7 @@ public class ProductRepository : IProductRepository
         return MapToProductDto(prod);
     }
 
-    public async Task<ProductDto> Update(UpdateProductDbCommand dbCommand)
+    public async Task<ProductDto> UpdateAsync(UpdateProductDbCommand dbCommand)
     {
         Product? product = await _context.Products
             .Include(x => x.Categories)
@@ -146,7 +101,7 @@ public class ProductRepository : IProductRepository
         };
     }
 
-    public async Task<bool> Delete(int productId)
+    public async Task<bool> DeleteAsync(int productId)
     {
         Product? product = await _context.Products
             .Include(c => c.Categories)

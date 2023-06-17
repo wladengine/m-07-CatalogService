@@ -4,16 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CatalogService.Infrastructure.MsSql.Categories;
 
-public interface ICategoryRepository
-{
-    Task<IEnumerable<CategoryDto>> GetCategoriesAsync();
-    Task<CategoryDto> GetCategoryAsync(int categoryId);
-    public Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId);
-    Task<CategoryDto> CreateNew(CreateCategoryDbCommand dbCommand);
-    Task<CategoryDto> Update(UpdateCategoryDbCommand dbCommand);
-    Task<bool> Delete(int categoryId);
-}
-
 public class CategoryRepository : ICategoryRepository
 {
     private readonly CatalogServiceContext _context;
@@ -23,55 +13,19 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync() =>
         await _context.Categories
-            .Select(x => new CategoryDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Products = x.Products.Select(b => new ProductBriefDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Price = b.Price,
-                })
-            })
+            .Select(x => MapToCategoryDto(x))
             .ToArrayAsync();
 
     public async Task<CategoryDto> GetCategoryAsync(int categoryId) =>
-        await _context.Categories
-            .Select(x => new CategoryDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Products = x.Products.Select(b => new ProductBriefDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Price = b.Price,
-                })
-            })
-            .SingleAsync(p => p.Id == categoryId);
+        MapToCategoryDto(await _context.Categories.SingleAsync(p => p.Id == categoryId));
 
-    public async Task<IEnumerable<CategoryDto>> GetCategoriesByProduct(int productId) =>
+    public async Task<IEnumerable<CategoryDto>> GetCategoriesByProductAsync(int productId) =>
         await _context.Categories
             .Where(x => x.Products.Any(c => c.Id == productId))
-            .Select(x => new CategoryDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Products = x.Products.Select(b => new ProductBriefDto
-                {
-                    Id = b.Id,
-                    Name = b.Name,
-                    Price = b.Price,
-                    Description = b.Description,
-                })
-            })
+            .Select(x => MapToCategoryDto(x))
             .ToArrayAsync();
 
-    public async Task<CategoryDto> CreateNew(CreateCategoryDbCommand dbCommand)
+    public async Task<CategoryDto> CreateNewAsync(CreateCategoryDbCommand dbCommand)
     {
         var category = new Category
         {
@@ -83,10 +37,10 @@ public class CategoryRepository : ICategoryRepository
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        return ConvertToCategoryDto(category);
+        return MapToCategoryDto(category);
     }
 
-    public async Task<CategoryDto> Update(UpdateCategoryDbCommand dbCommand)
+    public async Task<CategoryDto> UpdateAsync(UpdateCategoryDbCommand dbCommand)
     {
         Category? category = await _context.Categories
             .Include(x => x.Products)
@@ -102,10 +56,10 @@ public class CategoryRepository : ICategoryRepository
 
         await _context.SaveChangesAsync();
 
-        return ConvertToCategoryDto(category);
+        return MapToCategoryDto(category);
     }
 
-    private static CategoryDto ConvertToCategoryDto(Category category) =>
+    private static CategoryDto MapToCategoryDto(Category category) =>
         new()
         {
             Id = category.Id,
@@ -120,7 +74,7 @@ public class CategoryRepository : ICategoryRepository
             })
         };
 
-    public async Task<bool> Delete(int categoryId)
+    public async Task<bool> DeleteAsync(int categoryId)
     {
         Category? category = await _context.Categories
             .Include(c => c.Products)

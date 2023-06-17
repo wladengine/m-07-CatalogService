@@ -2,13 +2,8 @@
 using CatalogService.Core.Queries.Category;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Categories;
-using MediatR;
 
 namespace CatalogService.Core.Handlers.Categories;
-
-public interface IGetCategoryHandler : IRequestHandler<GetCategoryByIdQuery, Category>
-{
-}
 
 public class GetCategoryHandler : IGetCategoryHandler
 {

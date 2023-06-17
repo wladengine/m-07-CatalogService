@@ -47,7 +47,7 @@ namespace CatalogService.Controllers
         }
 
         // PUT /api/categories/123
-        [HttpPut("{id}", Name = "Update existing category")]
+        [HttpPut("{id}", Name = "UpdateAsync existing category")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CreateCategoryCommand createCategoryCommand)
         {
             Category? updatedCategory = await _mediator.Send(
@@ -61,7 +61,7 @@ namespace CatalogService.Controllers
         }
 
         // DELETE /api/categories/123
-        [HttpDelete("{id}", Name = "Delete existing category")]
+        [HttpDelete("{id}", Name = "DeleteAsync existing category")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             bool categoryExists = await _mediator.Send(new DeleteCategoryCommand(id));

@@ -52,7 +52,7 @@ namespace CatalogService.Controllers
         }
 
         // PUT /api/products/123
-        [HttpPut("{id}", Name = "Update existing createProduct")]
+        [HttpPut("{id}", Name = "UpdateAsync existing createProduct")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] CreateProductCommand command)
         {
             var request = new UpdateProductCommand(
@@ -71,7 +71,7 @@ namespace CatalogService.Controllers
         }
 
         // DELETE /api/products/123
-        [HttpDelete("{id}", Name = "Delete existing createProduct")]
+        [HttpDelete("{id}", Name = "DeleteAsync existing createProduct")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             bool productExists = await _mediator.Send(new DeleteProductCommand(id));

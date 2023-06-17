@@ -2,13 +2,8 @@
 using CatalogService.Core.Queries.Category;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Categories;
-using MediatR;
 
 namespace CatalogService.Core.Handlers.Categories;
-
-public interface IGetCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, IEnumerable<Category>>
-{
-}
 
 public class GetCategoriesHandler : IGetCategoriesHandler
 {
@@ -20,6 +15,6 @@ public class GetCategoriesHandler : IGetCategoriesHandler
     public async Task<IEnumerable<Category>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
         IEnumerable<CategoryDto> categories = await _categoryRepository.GetCategoriesAsync();
-        return categories.Select(CommonMapper.MapToCategory).ToArray();
+        return categories.Select(CommonMapper.MapToCategory);
     }
 }

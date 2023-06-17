@@ -1,12 +1,7 @@
 ﻿using CatalogService.Core.Commands.Product;
 using CatalogService.Infrastructure.MsSql.Products;
-using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
-
-public interface IDeleteProductHandler : IRequestHandler<DeleteProductCommand, bool>
-{
-}
 
 public class DeleteProductHandler : IDeleteProductHandler
 {
@@ -15,5 +10,5 @@ public class DeleteProductHandler : IDeleteProductHandler
         _productRepository = productRepository;
 
     public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken) =>
-        await _productRepository.Delete(request.Id);
+        await _productRepository.DeleteAsync(request.Id);
 }

@@ -36,7 +36,7 @@ public class CreateCategoryHandlerTest
     {
         var repository = new Mock<ICategoryRepository>();
         repository
-            .Setup(x => x.CreateNew(It.IsAny<CreateCategoryDbCommand>()))
+            .Setup(x => x.CreateNewAsync(It.IsAny<CreateCategoryDbCommand>()))
             .ReturnsAsync(DummyCategory);
 
         return repository;

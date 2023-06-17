@@ -2,13 +2,8 @@
 using CatalogService.Core.Queries.Product;
 using CatalogService.Infrastructure.Dto;
 using CatalogService.Infrastructure.MsSql.Products;
-using MediatR;
 
 namespace CatalogService.Core.Handlers.Products;
-
-public interface IGetProductHandler : IRequestHandler<GetProductByIdQuery, Product>
-{
-}
 
 public class GetProductHandler : IGetProductHandler
 {
